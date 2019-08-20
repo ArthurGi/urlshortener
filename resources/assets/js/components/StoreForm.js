@@ -27,7 +27,23 @@ class StoreForm extends Component {
         this.props.onStore(this.state.newLink);
     }
 
+    getErrors() {
+        let errors = this.props.errors;
+        if (errors) {
+            return Object.keys(errors).map(key => {
+                return (
+                    <div key={key} className="alert-danger">
+                        {key + ' : ' + errors[key]}
+                    </div>
+                );
+            });
+
+        }
+        return '';
+    }
+
     render() {
+
         return (
             <div>
                 <form onSubmit={this.handleSubmit}>
@@ -37,6 +53,7 @@ class StoreForm extends Component {
                         <div className="but-block">
                             <button className="btn btn-success" type="submit">Generate Shorten Link</button>
                         </div>
+                        {this.getErrors()}
                     </div>
                 </form>
             </div>

@@ -2,15 +2,15 @@ import React, {Component} from 'react';
 
 
 class LinkTable extends Component {
-    constructor() {
+    constructor(props) {
 
-        super();
+        super(props);
         this.state = {
             links: [],
-        }
+        };
+        this.getLinks = this.getLinks.bind(this);
     }
-
-    componentDidMount() {
+    getLinks(){
         fetch('/api/get-links')
             .then(response => {
                 return response.json();
@@ -20,6 +20,13 @@ class LinkTable extends Component {
             });
     }
 
+    componentDidMount() {
+        this.getLinks();
+    }
+
+    componentWillReceiveProps(){
+        this.getLinks();
+    }
     renderLinks() {
         return this.state.links.map(link => {
             return (
@@ -34,7 +41,7 @@ class LinkTable extends Component {
 
     render() {
         return (
-            <table className="table table-bordered table-sm">
+            <table className="table table-bordered table-sm" key={this.props.changed}>
                 <thead>
                 <tr>
                     <th>Url</th>

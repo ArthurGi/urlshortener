@@ -5,37 +5,42 @@ import StoreForm from './StoreForm';
 
 export default class Main extends Component {
     constructor() {
-
         super();
-
-        /* currentProduct keeps track of the product currently
-         * displayed */
         this.state = {
-            products: [],
-            currentProduct: null
-        }
+            links: [],
+            changed : 0,
+            errors : false,
+        };
+        this.handleStoreLink = this.handleStoreLink.bind(this)
+
     }
     handleStoreLink(link) {
-
-        fetch('api/store-link/', {
+        fetch('/api/store-link', {
             method: 'post',
             headers: {
                 'X-CSRF-TOKEN': window.token,
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(link)
+            body: JSON.stringify({
+                'url' : link.url
+            })
         })
             .then(response => {
+                if (response.status === 201) {
+                    this.setState({changed: this.state.changed + 1});
+                }
+                console.log('response', response);
                 return response.json();
             })
-            // .then(data => {
-            //
-            //     this.setState((prevState) => ({
-            //         links: prevState.links.concat(data),
-            //         currentLink: data
-            //     }))
-            // })
+            .then(data => {
+                if(data.errors){
+                    this.setState({errors: data.errors});
+                } else {
+                    this.setState({errors: false});
+                }
+
+            })
 
     }
 
@@ -47,8 +52,8 @@ export default class Main extends Component {
                         <div className="panel panel-default">
                             <div className="panel-heading">UrlShortener</div>
                             <div className="panel-body">
-                                <StoreForm onStore={this.handleStoreLink}/>
-                                <LinkTable/>
+                                <StoreForm onStore={this.handleStoreLink} errors={this.state.errors}/>
+                                <LinkTable changed={this.state.changed}/>
                             </div>
                         </div>
                     </div>

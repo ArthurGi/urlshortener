@@ -41592,39 +41592,46 @@ var Main = function (_Component) {
     function Main() {
         _classCallCheck(this, Main);
 
-        /* currentProduct keeps track of the product currently
-         * displayed */
         var _this = _possibleConstructorReturn(this, (Main.__proto__ || Object.getPrototypeOf(Main)).call(this));
 
         _this.state = {
-            products: [],
-            currentProduct: null
+            links: [],
+            changed: 0,
+            errors: false
         };
+        _this.handleStoreLink = _this.handleStoreLink.bind(_this);
+
         return _this;
     }
 
     _createClass(Main, [{
         key: 'handleStoreLink',
         value: function handleStoreLink(link) {
+            var _this2 = this;
 
-            fetch('api/store-link/', {
+            fetch('/api/store-link', {
                 method: 'post',
                 headers: {
                     'X-CSRF-TOKEN': window.token,
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(link)
+                body: JSON.stringify({
+                    'url': link.url
+                })
             }).then(function (response) {
+                if (response.status === 201) {
+                    _this2.setState({ changed: _this2.state.changed + 1 });
+                }
+                console.log('response', response);
                 return response.json();
+            }).then(function (data) {
+                if (data.errors) {
+                    _this2.setState({ errors: data.errors });
+                } else {
+                    _this2.setState({ errors: false });
+                }
             });
-            // .then(data => {
-            //
-            //     this.setState((prevState) => ({
-            //         links: prevState.links.concat(data),
-            //         currentLink: data
-            //     }))
-            // })
         }
     }, {
         key: 'render',
@@ -41649,8 +41656,8 @@ var Main = function (_Component) {
                             __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                                 'div',
                                 { className: 'panel-body' },
-                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3__StoreForm__["a" /* default */], { onStore: this.handleStoreLink }),
-                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__LinkTable__["a" /* default */], null)
+                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_3__StoreForm__["a" /* default */], { onStore: this.handleStoreLink, errors: this.state.errors }),
+                                __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__LinkTable__["a" /* default */], { changed: this.state.changed })
                             )
                         )
                     )
@@ -54517,20 +54524,21 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var LinkTable = function (_Component) {
     _inherits(LinkTable, _Component);
 
-    function LinkTable() {
+    function LinkTable(props) {
         _classCallCheck(this, LinkTable);
 
-        var _this = _possibleConstructorReturn(this, (LinkTable.__proto__ || Object.getPrototypeOf(LinkTable)).call(this));
+        var _this = _possibleConstructorReturn(this, (LinkTable.__proto__ || Object.getPrototypeOf(LinkTable)).call(this, props));
 
         _this.state = {
             links: []
         };
+        _this.getLinks = _this.getLinks.bind(_this);
         return _this;
     }
 
     _createClass(LinkTable, [{
-        key: 'componentDidMount',
-        value: function componentDidMount() {
+        key: 'getLinks',
+        value: function getLinks() {
             var _this2 = this;
 
             fetch('/api/get-links').then(function (response) {
@@ -54538,6 +54546,16 @@ var LinkTable = function (_Component) {
             }).then(function (links) {
                 _this2.setState({ links: links });
             });
+        }
+    }, {
+        key: 'componentDidMount',
+        value: function componentDidMount() {
+            this.getLinks();
+        }
+    }, {
+        key: 'componentWillReceiveProps',
+        value: function componentWillReceiveProps() {
+            this.getLinks();
         }
     }, {
         key: 'renderLinks',
@@ -54569,7 +54587,7 @@ var LinkTable = function (_Component) {
         value: function render() {
             return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                 'table',
-                { className: 'table table-bordered table-sm' },
+                { className: 'table table-bordered table-sm', key: this.props.changed },
                 __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
                     'thead',
                     null,
@@ -54650,6 +54668,21 @@ var StoreForm = function (_Component) {
             this.props.onStore(this.state.newLink);
         }
     }, {
+        key: 'getErrors',
+        value: function getErrors() {
+            var errors = this.props.errors;
+            if (errors) {
+                return Object.keys(errors).map(function (key) {
+                    return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(
+                        'div',
+                        { key: key, className: 'alert-danger' },
+                        key + ' : ' + errors[key]
+                    );
+                });
+            }
+            return '';
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this2 = this;
@@ -54675,7 +54708,8 @@ var StoreForm = function (_Component) {
                                 { className: 'btn btn-success', type: 'submit' },
                                 'Generate Shorten Link'
                             )
-                        )
+                        ),
+                        this.getErrors()
                     )
                 )
             );
