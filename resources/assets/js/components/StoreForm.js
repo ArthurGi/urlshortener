@@ -9,6 +9,7 @@ class StoreForm extends Component {
         this.state = {
             newLink: {
                 url: '',
+                alias: '',
             }
         };
 
@@ -48,8 +49,14 @@ class StoreForm extends Component {
             <div>
                 <form onSubmit={this.handleSubmit}>
                     <div className="input-block">
-                        <input type="text" name="url" className="form-control" placeholder="Enter URL"
-                               onChange={(e) => this.handleInput('url', e)}/>
+                        <div className="form-group">
+                            <input type="text" name="url" className="form-control" placeholder="Enter URL"
+                                   onChange={(e) => this.handleInput('url', e)}/>
+                        </div>
+                        <div className="form-group">
+                            <input type="text" name="alias" className="form-control" placeholder="Enter Short URL if you want"
+                                   onChange={(e) => this.handleInput('alias', e)}/>
+                        </div>
                         <div className="but-block">
                             <button className="btn btn-success" type="submit">Generate Shorten Link</button>
                         </div>

@@ -14,7 +14,5 @@
 Route::get('/', function () {
     return view('welcome');
 });
-//Route::get('', 'DefaultController@index');
-//Route::post('', 'DefaultController@store')->name('save.link');
-//
-//Route::get('{alias}', 'DefaultController@shortenLink')->name('shorten.link');
+
+Route::get('{alias}', 'DefaultController@shortenLink')->name('shorten.link');

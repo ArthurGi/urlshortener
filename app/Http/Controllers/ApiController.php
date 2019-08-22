@@ -5,11 +5,11 @@
  * Date: 18.08.2019
  * Time: 12:26
  */
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Link;
-
+use App\Models\Link;
 
 
 class ApiController extends Controller
@@ -21,21 +21,22 @@ class ApiController extends Controller
 
     public function store(Request $request)
     {
-        //dump($request);die;
-        $this->validate($request, [
-            'url' => ['required','url','unique:links','max:255', new \App\Rules\ResourceExists]
-        ]);
+        $rules = [
+            'url' => ['required', 'url', 'unique:links', 'max:255', new \App\Rules\ResourceExists],
+        ];
+        $link = [
+            'url' => $request->url,
+        ];
 
-        $urlSaved = Link::create([
-            'url' => $request->url
-        ]);
-
-        if($urlSaved){
-            $alias = substr(md5($urlSaved->id . str_random(3)), 0, -20);
-            $urlSaved = Link::where(['id' => $urlSaved->id])->update([
-                'alias' => $alias
-            ]);
+        if ($request->alias) {
+            $rules['alias'] = ['required', 'unique:links', 'max:8'];
+            $link['alias'] = $request->alias;
+        } else {
+            $link['alias'] = \App\Helpers\AliasHelper::generateAlias('links','alias');
         }
+        $this->validate($request, $rules);
+
+        $urlSaved = Link::create($link);
 
         return response()->json($urlSaved, 201);
     }

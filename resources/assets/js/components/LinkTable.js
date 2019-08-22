@@ -10,7 +10,8 @@ class LinkTable extends Component {
         };
         this.getLinks = this.getLinks.bind(this);
     }
-    getLinks(){
+
+    getLinks() {
         fetch('/api/get-links')
             .then(response => {
                 return response.json();
@@ -24,16 +25,17 @@ class LinkTable extends Component {
         this.getLinks();
     }
 
-    componentWillReceiveProps(){
+    componentWillReceiveProps() {
         this.getLinks();
     }
+
     renderLinks() {
         return this.state.links.map(link => {
             return (
                 <tr key={link.id}>
                     <td>{link.url}</td>
                     <td><a href={'/' + link.alias + '/'}
-                           target="_blank">{'/' + link.alias + '/'}</a></td>
+                           target="_blank">{link.alias}</a></td>
                 </tr>
             );
         });

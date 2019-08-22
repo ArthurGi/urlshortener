@@ -7,7 +7,6 @@ export default class Main extends Component {
     constructor() {
         super();
         this.state = {
-            links: [],
             changed : 0,
             errors : false,
         };
@@ -23,14 +22,14 @@ export default class Main extends Component {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                'url' : link.url
+                'url' : link.url,
+                'alias' : link.alias
             })
         })
             .then(response => {
                 if (response.status === 201) {
                     this.setState({changed: this.state.changed + 1});
                 }
-                console.log('response', response);
                 return response.json();
             })
             .then(data => {
